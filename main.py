@@ -4,7 +4,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
 
-def run(UCInetID, password, presenter_code, wait_time=60*60*2):
+def run(presenter_code, wait_time=60*60*2):
     pollev_url = "https://pollev.com/login"
 
     with webdriver.Chrome() as driver:
@@ -12,8 +12,8 @@ def run(UCInetID, password, presenter_code, wait_time=60*60*2):
             # Navigate to the login page
             driver.get(pollev_url)
 
-            # Log in using the organization-specific method
-            login_with_organization(driver, UCInetID, password, 10)
+            # Log in by hand in the browser window; Duo needs a human
+            input("Log in in the browser window (finish Duo), then press Enter here to start monitoring...")
 
             time.sleep(5)
 
@@ -34,32 +34,6 @@ def run(UCInetID, password, presenter_code, wait_time=60*60*2):
         finally:
             input("Press Enter to quit")
 
-def login_with_organization(driver, UCInetID, password, wait_time):
-    """Completes user login through the organization's authentication page."""
-    WebDriverWait(driver, wait_time).until(
-        EC.presence_of_element_located((By.ID, 'username'))
-    ).send_keys(UCInetID + "@uci.edu")
-
-    WebDriverWait(driver, wait_time).until(
-        EC.element_to_be_clickable((By.NAME, 'button'))
-    ).click()
-
-    WebDriverWait(driver, wait_time).until(
-        EC.presence_of_element_located((By.XPATH, "//button[span[text()='Log in with UCI']]"))
-    ).click()
-
-    WebDriverWait(driver, wait_time).until(
-        EC.presence_of_element_located((By.ID, 'j_username'))
-    ).send_keys(UCInetID)
-
-    WebDriverWait(driver, wait_time).until(
-        EC.presence_of_element_located((By.ID, 'j_password'))
-    ).send_keys(password)
-
-    WebDriverWait(driver, wait_time).until(
-        EC.element_to_be_clickable((By.NAME, 'submit_form'))
-    ).click()
-
 def join_presenter_by_code(driver, code, wait_time):
     """Enters the presenter's code to join the session."""
     WebDriverWait(driver, wait_time).until(
@@ -77,7 +51,5 @@ def select_first_option(driver, wait_time):
     ).click()
 
 if __name__ == "__main__":
-    UCInetID = "petergriffin"
-    password = "114514"
     present_code = "quagmire711"
-    run(UCInetID, password, present_code)
+    run(present_code)

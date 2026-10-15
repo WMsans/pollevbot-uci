@@ -23,14 +23,13 @@ To set up this project on your local machine, follow these steps:
 
 ## Usage
 
-Set your UCInetID, password, and desired poll host
+Set the desired poll host in `main.py`
 
 ```angular2html
-    UCInetID = "My Username"
-    password = "My Password"
     present_code = "code123"
 ```
 
-And run the script
+And run the script. A Chrome window opens on the Pollev login page: log in there yourself
+(UCI NetID + Duo), then press Enter in the terminal and the bot starts monitoring for polls.
 
 
