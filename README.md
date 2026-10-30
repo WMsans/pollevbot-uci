@@ -8,8 +8,7 @@ pollevbot is a bot that automatically responds to polls on pollev.com. It contin
 
 Before running this script, ensure you have the following installed:
 - Python 3.6 or higher
-- Selenium WebDriver
-- ChromeDriver (compatible with your Chrome version)
+- patchright (bundles its own Chromium)
 
 ## Setup
 
@@ -18,7 +17,8 @@ To set up this project on your local machine, follow these steps:
 1. **Clone the repository:**
 2. **Install required Python packages:**
 
-```pip install selenium```
+```pip install patchright```
+```patchright install chromium```
 
 
 ## Usage
@@ -29,7 +29,10 @@ Set the desired poll host in `main.py`
     present_code = "code123"
 ```
 
-And run the script. A Chrome window opens on the Pollev login page: log in there yourself
+And run the script. A Chromium window opens on the Pollev page: log in there yourself
 (UCI NetID + Duo), then press Enter in the terminal and the bot starts monitoring for polls.
+
+Chromium runs on the persistent profile in `.browser-profile`, so the login (and Chrome's saved
+password) survives between runs — same setup as perusallbot.
 
 

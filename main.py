@@ -1,55 +1,55 @@
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-import time
+"""Answer the first option of a poll that a presenter opens on pollev.com."""
 
-def run(presenter_code, wait_time=60*60*2):
-    pollev_url = "https://pollev.com/login"
+from patchright.sync_api import sync_playwright
 
-    with webdriver.Chrome() as driver:
+PROFILE = ".browser-profile"
+
+
+def run(presenter_code, wait_time=60 * 60 * 2):
+    ms = wait_time * 1000
+
+    with sync_playwright() as p:
+        ctx = p.chromium.launch_persistent_context(
+            user_data_dir=PROFILE,
+            headless=False,
+            no_viewport=True,
+        )
+        page = ctx.pages[0] if ctx.pages else ctx.new_page()
+
         try:
-            # Navigate to the login page
-            driver.get(pollev_url)
-
-            # Log in by hand in the browser window; Duo needs a human
+            page.goto("https://pollev.com/login")
             input("Log in in the browser window (finish Duo), then press Enter here to start monitoring...")
-
-            time.sleep(5)
+            # Duo can land anywhere; the code box lives on /home.
+            page.goto("https://pollev.com/home")
 
             # Join using a presenter's code
-            join_presenter_by_code(driver, presenter_code, 30)
-
-            time.sleep(5)
+            join_presenter_by_code(page, presenter_code, ms)
 
             # Interact with the session options
-            select_first_option(driver, wait_time)
+            select_first_option(page, ms)
 
             # Refresh the page to ensure updates are fetched
-            driver.refresh()
+            page.reload()
 
         except Exception as e:
             print(f"Error during processing: {e}")
 
         finally:
             input("Press Enter to quit")
+            ctx.close()
 
-def join_presenter_by_code(driver, code, wait_time):
+
+def join_presenter_by_code(page, code, timeout):
     """Enters the presenter's code to join the session."""
-    WebDriverWait(driver, wait_time).until(
-        EC.presence_of_element_located((By.ID, 'participate_home_form_presenter'))
-    ).send_keys(code)
+    page.locator("#participate_home_form_presenter").fill(code, timeout=timeout)
+    page.locator('[name="button"]').first.click(timeout=timeout)
 
-    WebDriverWait(driver, wait_time).until(
-        EC.element_to_be_clickable((By.NAME, 'button'))
-    ).click()
 
-def select_first_option(driver, wait_time):
+def select_first_option(page, timeout):
     """Selects the first multiple-choice option available."""
-    WebDriverWait(driver, wait_time).until(
-        EC.element_to_be_clickable((By.CSS_SELECTOR, ".component-response-multiple-choice__option__vote"))
-    ).click()
+    page.locator(".component-response-multiple-choice__option__vote").first.click(timeout=timeout)
+
 
 if __name__ == "__main__":
-    present_code = "quagmire711"
+    present_code = "irenegassko734"
     run(present_code)
