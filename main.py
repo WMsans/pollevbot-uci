@@ -26,7 +26,7 @@ def run(presenter_code, wait_time=60 * 60 * 2):
             join_presenter_by_code(page, presenter_code, ms)
 
             # Interact with the session options
-            select_first_option(page, ms)
+            answer_poll(page, ms)
 
             # Refresh the page to ensure updates are fetched
             page.reload()
@@ -45,11 +45,19 @@ def join_presenter_by_code(page, code, timeout):
     page.locator('[name="button"]').first.click(timeout=timeout)
 
 
-def select_first_option(page, timeout):
-    """Selects the first multiple-choice option available."""
-    page.locator(".component-response-multiple-choice__option__vote").first.click(timeout=timeout)
+def answer_poll(page, timeout, text="i don't know"):
+    """Picks the first option of a multiple-choice poll, or submits `text` to an open-ended one."""
+    choice = page.locator(".component-response-multiple-choice__option__vote").first
+    textbox = page.locator('.component-response-open-ended textarea[name="response"]')
+    choice.or_(textbox).first.wait_for(timeout=timeout)
+
+    if textbox.is_visible():
+        textbox.fill(text)
+        page.locator('.component-response-open-ended input[type="submit"]').click(timeout=timeout)
+    else:
+        choice.click(timeout=timeout)
 
 
 if __name__ == "__main__":
-    present_code = "irenegassko734"
+    present_code = "c0nstances"
     run(present_code)
